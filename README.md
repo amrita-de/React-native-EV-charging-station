@@ -4,9 +4,13 @@ A mobile application built with React Native to help users locate and navigate t
 📱 Features
 
 🔍 Find nearby EV charging stations
+
 📍 View locations on a map
+
 🧭 Navigate to charging stations
-💾 Save favorite locations (if implemented)
+
+💾 Save favorite locations 
+
 ⚡ Built with React Native and integrates maps API
 
 📦 Technologies Used
