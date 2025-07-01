@@ -14,8 +14,13 @@ A mobile application built with React Native to help users locate and navigate t
 ⚡ Built with React Native and integrates maps API
 
 📦 Technologies Used
+
 React Native
+
 React Navigation
+
 Google Maps API / Location services
+
 JavaScript
+
 Android Studio 
