@@ -38,11 +38,13 @@ export default function App() {
     'Raleway-SemiBold': require('./assets/Fonts/Raleway-SemiBold.ttf'),
     'Raleway-Bold': require('./assets/Fonts/Raleway-Bold.ttf'),
   });
-  //Default Location
-  const [location, setLocation] = useState({
+  //Default Location (used only until GPS permission/position is available)
+  const DEFAULT_LOCATION = {
     latitude:'29.6849979',
     longitude:'77.6800181',
-  });
+  };
+  const [location, setLocation] = useState(DEFAULT_LOCATION);
+  const [usingDefaultLocation, setUsingDefaultLocation] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
  
   useEffect(() => {
@@ -52,18 +54,14 @@ export default function App() {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
-        console.log("DENINED")
-        return;
+        console.log("DENIED")
+        return; // keep the default area; the banner tells the user
       }
 
       let location = await Location.getCurrentPositionAsync({});
-     setLocation(location.coords);
-      if(!location?.coords)
-      {
-        setLocation({ 
-          latitude:'29.6849979',
-          longitude:'77.6800181',
-        })
+      if (location?.coords) {
+        setLocation(location.coords);
+        setUsingDefaultLocation(false);
       }
      console.log("--m",location.coords)
     })();
@@ -90,7 +88,7 @@ export default function App() {
     tokenCache={tokenCache}
     publishableKey={GlobalApi.CLERK_API_KEY}>
     <UserLocationContext.Provider 
-    value={{location,setLocation}}>
+    value={{location,setLocation:(coords)=>{setLocation(coords); setUsingDefaultLocation(false);},usingDefaultLocation}}>
     <View style={styles.container}>
       <SignedIn>
        

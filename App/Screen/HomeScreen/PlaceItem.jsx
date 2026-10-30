@@ -17,7 +17,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../../Utils/FirebaseConfig";
-import { doc, setDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { AntDesign } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
 import * as Linking from 'expo-linking';
@@ -46,18 +46,32 @@ export default function PlaceItem({ place, isfav, markedFav }) {
   }
   
   const db = getFirestore(app);
+  // Each favorite is keyed by user id + place id, so two people favoriting
+  // the same station never overwrite each other's document.
+  const favDocId = (placeId) => `${user?.id}_${placeId}`;
+
   const onSetFav = async (place) => {
     // Add a new document in collection "ev-fav-place"
-    await setDoc(doc(db, "ev-fav-place", place.id.toString()), {
+    await setDoc(doc(db, "ev-fav-place", favDocId(place.id)), {
       place: place,
       email: user?.primaryEmailAddress?.emailAddress,
+      userId: user?.id,
     });
     markedFav();
     ToastAndroid.show("Fav Ev Station Added!", ToastAndroid.TOP);
   };
 
   const onDeleteFav = async (placeId) => {
-    await deleteDoc(doc(db, "ev-fav-place", place.id.toString()));
+    await deleteDoc(doc(db, "ev-fav-place", favDocId(placeId)));
+    // Also remove a legacy favorite saved with the old place-id-only key.
+    const legacyRef = doc(db, "ev-fav-place", placeId.toString());
+    const legacySnap = await getDoc(legacyRef);
+    if (
+      legacySnap.exists() &&
+      legacySnap.data().email === user?.primaryEmailAddress?.emailAddress
+    ) {
+      await deleteDoc(legacyRef);
+    }
     markedFav();
     ToastAndroid.show("Fav Ev Station Removed!", ToastAndroid.TOP);
   };

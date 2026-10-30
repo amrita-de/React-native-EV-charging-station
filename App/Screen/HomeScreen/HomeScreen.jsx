@@ -10,7 +10,7 @@ import { SelectMarkerContext } from '../../Context/SelectMarkerContext'
 
 export default function HomeScreen() {
   const [selectedMarker,setSelectedMarker]=useState(0);
-  const { location, setLocation } = useContext(UserLocationContext);
+  const { location, setLocation, usingDefaultLocation } = useContext(UserLocationContext);
   useEffect(()=>{
     setSelectedMarker(0)
     location&&GetNearByPlace();
@@ -57,6 +57,11 @@ export default function HomeScreen() {
           latitude:location.lat,
           longitude:location.lng
         })} />
+        {usingDefaultLocation && (
+          <Text style={styles.defaultLocationBanner}>
+            Location permission is off - showing a default area. Enable location to see stations near you.
+          </Text>
+        )}
       </View>
       {!placeList?   <View style={styles.activityIndicatorContainer}>
       <ActivityIndicator size={'large'} />
@@ -82,6 +87,14 @@ const styles = StyleSheet.create({
     zIndex:10,
     bottom:0,
     width:'100%'
+  }, defaultLocationBanner: {
+    marginTop: 8,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#FFF4CE',
+    color: '#5c4a00',
+    fontFamily: 'Raleway-Regular',
+    fontSize: 13,
   },   activityIndicatorContainer: {
     flex: 1,
     justifyContent: 'center',
